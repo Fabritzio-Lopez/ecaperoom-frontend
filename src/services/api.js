@@ -1,7 +1,26 @@
 /**
  * Cliente de comunicación con la API Backend de Escape Room
  */
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const rawUrl = import.meta.env.VITE_API_URL;
+let cleanUrl = rawUrl ? rawUrl.trim().replace(/\/+$/, '') : '';
+
+// Si no se definió o apunta a localhost en un despliegue en la nube (Vercel),
+// redirige automáticamente a tu backend en producción en Render:
+if (
+  !cleanUrl ||
+  (typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1' &&
+    cleanUrl.includes('localhost'))
+) {
+  cleanUrl = 'https://ecaperoom-backend.onrender.com';
+}
+
+const API_URL = cleanUrl || 'http://localhost:5000';
+
+if (typeof window !== 'undefined') {
+  console.log('📡 Escape Room Backend API URL:', API_URL);
+}
 
 /**
  * Valida la respuesta de un nivel específico en el backend.
@@ -25,7 +44,7 @@ export async function verifyPuzzle(level, answer) {
     console.error('Error al conectar con el servidor:', error);
     return {
       success: false,
-      message: 'No se pudo conectar con el servidor backend. Verifica que esté en ejecución.',
+      message: `No se pudo conectar con el servidor backend (${API_URL}). Verifica que esté en ejecución.`,
     };
   }
 }
