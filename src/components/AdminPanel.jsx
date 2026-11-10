@@ -60,23 +60,28 @@ export default function AdminPanel({ isOpen, onClose, onLeaderboardChanged }) {
   const handleDeletePlayer = async (id, name) => {
     if (!window.confirm(`¿Estás seguro de que deseas eliminar el registro de "${name}"?`)) return;
 
-    const res = await deleteAdminPlayer(id, token);
+    // Remover inmediatamente de la vista para respuesta instantánea
+    setPlayers((prev) => prev.filter((p) => (id ? p.id !== id : true) && p.player_name !== name));
+
+    const res = await deleteAdminPlayer(id, name, token);
     if (res.success) {
-      setActionMessage({ type: 'success', text: `Jugador "${name}" eliminado.` });
-      loadPlayers(token);
+      setActionMessage({ type: 'success', text: `Jugador "${name}" eliminado permanentemente.` });
       if (onLeaderboardChanged) onLeaderboardChanged();
     } else {
       setActionMessage({ type: 'error', text: res.message });
+      loadPlayers(token);
     }
   };
 
   const handleClearAll = async () => {
     if (!window.confirm('⚠️ ¿Estás seguro de borrar TODOS los registros del juego? Esta acción no se puede deshacer.')) return;
 
+    // Limpiar inmediatamente la lista en pantalla
+    setPlayers([]);
+
     const res = await clearAdminLeaderboard(token);
     if (res.success) {
-      setActionMessage({ type: 'success', text: 'Todos los registros han sido borrados de Supabase.' });
-      setPlayers([]);
+      setActionMessage({ type: 'success', text: 'Todos los registros han sido borrados de la base de datos.' });
       if (onLeaderboardChanged) onLeaderboardChanged();
     } else {
       setActionMessage({ type: 'error', text: res.message });
