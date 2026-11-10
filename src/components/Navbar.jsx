@@ -8,6 +8,7 @@ export default function Navbar({
   gameState,
   elapsedSeconds,
   isTimerRunning,
+  lives,
   onResetGame,
 }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -38,13 +39,34 @@ export default function Navbar({
               </span>
             </div>
             <p className="text-xs text-slate-400 hidden sm:block">
-              Misión de Reactivación Económica Sostenible
+              Proyecto Jóvenes Creadores
             </p>
           </div>
         </div>
 
-        {/* Indicadores de Progreso, Sonido y Usuario */}
+        {/* Indicadores de Progreso, Vidas, Sonido y Usuario */}
         <div className="flex items-center space-x-2 md:space-x-3">
+          {/* Contador de vidas en el Navbar */}
+          {gameState === 'playing' && (
+            <div
+              className="flex items-center gap-1 bg-slate-900/90 border border-slate-800 px-2.5 py-1 rounded-full shadow-inner"
+              title={`Te quedan ${lives} vidas`}
+            >
+              {[1, 2, 3].map((h) => (
+                <span
+                  key={h}
+                  className={`text-xs md:text-sm transition-all ${
+                    h <= lives
+                      ? 'scale-100 drop-shadow-[0_0_6px_rgba(244,63,94,0.6)]'
+                      : 'opacity-30 grayscale'
+                  }`}
+                >
+                  {h <= lives ? '❤️' : '🖤'}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Botón de Sonido Efectos Escape Room */}
           <button
             onClick={handleToggleSound}
