@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Clock, Calendar, RefreshCw, AlertCircle, Trash2 } from 'lucide-react';
-import { getLeaderboard, cleanupLeaderboard } from '../services/api';
+import { Trophy, Clock, Calendar, RefreshCw, AlertCircle, Lock } from 'lucide-react';
+import { getLeaderboard } from '../services/api';
 import { formatTime } from './Timer';
 
 const DUMMY_NAMES = [
@@ -11,10 +11,9 @@ const DUMMY_NAMES = [
   'Pionero2030',
 ];
 
-export default function LeaderboardTable({ currentPlayerName, highlightLatest = false }) {
+export default function LeaderboardTable({ currentPlayerName, onOpenAdmin }) {
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cleaning, setCleaning] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchScores = async () => {
@@ -29,22 +28,11 @@ export default function LeaderboardTable({ currentPlayerName, highlightLatest = 
     }
   };
 
-  const handleCleanEmpty = async () => {
-    setCleaning(true);
-    const res = await cleanupLeaderboard();
-    setCleaning(false);
-    if (res.success && Array.isArray(res.leaderboard)) {
-      setScores(res.leaderboard);
-    } else {
-      fetchScores();
-    }
-  };
-
   useEffect(() => {
     fetchScores();
   }, []);
 
-  // Filtro estricto en frontend: excluye registros vacíos, nulos o de prueba
+  // Filtro estricto: solo muestra partidas válidas reales
   const cleanScores = (scores || []).filter(
     (score) =>
       score &&
@@ -110,17 +98,19 @@ export default function LeaderboardTable({ currentPlayerName, highlightLatest = 
             Leaderboard Oficial (Tiempos Reales)
           </h3>
         </div>
+
         <div className="flex items-center space-x-2">
-          {/* Botón de limpiar vacíos */}
-          <button
-            onClick={handleCleanEmpty}
-            disabled={cleaning || loading}
-            className="text-[11px] text-slate-400 hover:text-rose-400 flex items-center gap-1 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 transition disabled:opacity-50"
-            title="Eliminar resultados vacíos o pruebas"
-          >
-            <Trash2 className={`w-3 h-3 ${cleaning ? 'animate-bounce' : ''}`} />
-            <span className="hidden sm:inline">Limpiar vacíos</span>
-          </button>
+          {/* Botón de Acceso Admin para gestionar / limpiar registros */}
+          {onOpenAdmin && (
+            <button
+              onClick={onOpenAdmin}
+              className="text-[11px] font-mono text-slate-400 hover:text-amber-400 flex items-center gap-1 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 transition"
+              title="Iniciar sesión como administrador para limpiar registros"
+            >
+              <Lock className="w-3 h-3 text-amber-400" />
+              <span className="hidden sm:inline">Admin</span>
+            </button>
+          )}
 
           {/* Botón de actualizar */}
           <button
@@ -138,7 +128,7 @@ export default function LeaderboardTable({ currentPlayerName, highlightLatest = 
       {/* Tabla de Resultados */}
       <div className="overflow-x-auto">
         {loading && cleanScores.length === 0 ? (
-          <div className="py-12 flex flex-col items-center justify-center text-slate-400 text-xs">
+          <div className="py-12 flex flex-col items-center justify-center text-slate-400 text-xs font-mono">
             <div className="w-6 h-6 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-2" />
             <span>Consultando registros en Supabase...</span>
           </div>
@@ -148,18 +138,18 @@ export default function LeaderboardTable({ currentPlayerName, highlightLatest = 
             <span>{error}</span>
           </div>
         ) : cleanScores.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 text-xs px-4">
+          <div className="py-12 text-center text-slate-400 text-xs px-4 font-mono">
             <p className="font-semibold text-slate-300 mb-1">
-              🏆 La tabla está limpia de registros vacíos y pruebas.
+              🏆 La tabla está lista y depurada.
             </p>
             <p className="text-slate-500">
-              ¡Sé el primer agente en completar los 3 cerrojos para aparecer en el podio!
+              ¡Sé el primer agente en completar las 7 bóvedas para aparecer en el podio!
             </p>
           </div>
         ) : (
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-800/80 bg-slate-950/30 text-slate-400 uppercase tracking-wider font-semibold">
+              <tr className="border-b border-slate-800/80 bg-slate-950/30 text-slate-400 uppercase tracking-wider font-semibold font-mono">
                 <th className="py-3 px-4 text-center w-16">Puesto</th>
                 <th className="py-3 px-4">Agente</th>
                 <th className="py-3 px-4 text-right">Tiempo Total</th>
@@ -187,7 +177,7 @@ export default function LeaderboardTable({ currentPlayerName, highlightLatest = 
                         {score.player_name}
                       </span>
                       {isCurrent && (
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono">
                           TÚ
                         </span>
                       )}
@@ -195,7 +185,7 @@ export default function LeaderboardTable({ currentPlayerName, highlightLatest = 
                     <td className="py-3 px-4 text-right font-mono font-bold text-emerald-400">
                       {formatTime(score.completion_time_seconds)}
                     </td>
-                    <td className="py-3 px-4 text-right text-slate-500 text-[11px] hidden sm:table-cell">
+                    <td className="py-3 px-4 text-right text-slate-500 text-[11px] hidden sm:table-cell font-mono">
                       {formatDate(score.created_at)}
                     </td>
                   </tr>

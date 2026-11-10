@@ -1,11 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Award, CheckCircle2, RotateCcw, Clock, Share2, Sparkles, AlertCircle } from 'lucide-react';
+import { Award, CheckCircle2, RotateCcw, Clock, Sparkles, AlertCircle, Heart } from 'lucide-react';
 import { submitScore } from '../services/api';
 import { formatTime } from './Timer';
 import LeaderboardTable from './LeaderboardTable';
 
-export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain }) {
+export default function VictoryScreen({
+  playerName,
+  totalSeconds,
+  answersLog = [],
+  livesRemaining = 3,
+  onPlayAgain,
+  onOpenAdmin,
+}) {
   const [submissionStatus, setSubmissionStatus] = useState('pending'); // 'pending' | 'success' | 'error'
   const [errorMessage, setErrorMessage] = useState('');
   const hasSubmitted = useRef(false);
@@ -37,12 +44,12 @@ export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain })
     };
     frame();
 
-    // 2. Registrar el puntaje automáticamente en Supabase a través del Backend
+    // 2. Registrar el puntaje y respuestas en Supabase
     if (!hasSubmitted.current) {
       hasSubmitted.current = true;
       (async () => {
         try {
-          const res = await submitScore(playerName, totalSeconds);
+          const res = await submitScore(playerName, totalSeconds, answersLog, livesRemaining);
           if (res.success) {
             setSubmissionStatus('success');
           } else {
@@ -55,7 +62,7 @@ export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain })
         }
       })();
     }
-  }, [playerName, totalSeconds]);
+  }, [playerName, totalSeconds, answersLog, livesRemaining]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -67,7 +74,7 @@ export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain })
         <div className="relative z-10 flex flex-col items-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-6">
             <Sparkles className="w-4 h-4 text-emerald-400" />
-            ¡Escape Room Resuelto con Éxito!
+            ¡7 Bóvedas Desbloqueadas con Éxito!
           </div>
 
           <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-700 p-1 flex items-center justify-center shadow-2xl shadow-emerald-500/30 mb-6">
@@ -80,7 +87,7 @@ export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain })
             ¡Felicitaciones, Agente <span className="text-emerald-400">{playerName}</span>!
           </h1>
           <p className="text-slate-300 text-sm md:text-base max-w-xl mx-auto mb-6">
-            Has superado los 3 cerrojos de seguridad y desbloqueado la arquitectura de crecimiento económico, trabajo digno e inclusión de la <strong>Agenda 2030 (ODS 8)</strong>.
+            Has superado las 7 bóvedas y liberado con éxito el proyecto <strong>"Jóvenes Creadores: Del Negocio Informal al Trabajo Digno" (ODS 8)</strong>.
           </p>
 
           {/* Estadísticas de la Partida */}
@@ -90,7 +97,7 @@ export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain })
                 <Clock className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block font-mono">
                   Tiempo Total:
                 </span>
                 <span className="text-xl font-mono font-bold text-white">
@@ -103,15 +110,15 @@ export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain })
             </div>
 
             <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-amber-950/80 border border-amber-500/30 text-amber-400">
-                <Award className="w-5 h-5" />
+              <div className="p-2.5 rounded-xl bg-rose-950/80 border border-rose-500/30 text-rose-400">
+                <Heart className="w-5 h-5 fill-rose-500" />
               </div>
               <div className="text-left">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                  Rango Obtenido:
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block font-mono">
+                  Vidas Conservadas:
                 </span>
-                <span className="text-sm font-bold text-amber-300">
-                  Embajador ODS 8
+                <span className="text-sm font-bold text-rose-300">
+                  {livesRemaining} de 3 Vidas
                 </span>
               </div>
             </div>
@@ -120,19 +127,19 @@ export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain })
           {/* Estado de sincronización con Supabase */}
           <div className="mb-6">
             {submissionStatus === 'pending' && (
-              <div className="inline-flex items-center gap-2 text-xs text-slate-400 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-800">
+              <div className="inline-flex items-center gap-2 text-xs text-slate-400 bg-slate-900 px-3 py-1.5 rounded-full border border-slate-800 font-mono">
                 <div className="w-3.5 h-3.5 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-                Registrando marca en Supabase...
+                Registrando marca y respuestas en Supabase...
               </div>
             )}
             {submissionStatus === 'success' && (
-              <div className="inline-flex items-center gap-2 text-xs text-emerald-300 bg-emerald-950/80 px-3 py-1.5 rounded-full border border-emerald-500/40">
+              <div className="inline-flex items-center gap-2 text-xs text-emerald-300 bg-emerald-950/80 px-3 py-1.5 rounded-full border border-emerald-500/40 font-mono">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 ¡Tu marca ha sido guardada en la base de datos de Supabase!
               </div>
             )}
             {submissionStatus === 'error' && (
-              <div className="inline-flex items-center gap-2 text-xs text-rose-300 bg-rose-950/80 px-3 py-1.5 rounded-full border border-rose-500/40">
+              <div className="inline-flex items-center gap-2 text-xs text-rose-300 bg-rose-950/80 px-3 py-1.5 rounded-full border border-rose-500/40 font-mono">
                 <AlertCircle className="w-4 h-4 text-rose-400" />
                 {errorMessage}
               </div>
@@ -151,7 +158,7 @@ export default function VictoryScreen({ playerName, totalSeconds, onPlayAgain })
       </div>
 
       {/* Tabla de Clasificación en Vivo */}
-      <LeaderboardTable currentPlayerName={playerName} highlightLatest={true} />
+      <LeaderboardTable currentPlayerName={playerName} onOpenAdmin={onOpenAdmin} />
     </div>
   );
 }

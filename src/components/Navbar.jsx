@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Timer from './Timer';
-import { User, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { User, RotateCcw, Volume2, VolumeX, ShieldCheck } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 
 export default function Navbar({
@@ -10,6 +10,7 @@ export default function Navbar({
   isTimerRunning,
   lives,
   onResetGame,
+  onOpenAdmin,
 }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -78,6 +79,15 @@ export default function Navbar({
             ) : (
               <VolumeX className="w-4 h-4 text-slate-500" />
             )}
+          </button>
+
+          {/* Botón de Acceso al Panel de Administrador */}
+          <button
+            onClick={onOpenAdmin}
+            title="Panel de Administrador (Credenciales requeridas)"
+            className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-amber-400 transition"
+          >
+            <ShieldCheck className="w-4 h-4 text-amber-400" />
           </button>
 
           {playerName && (

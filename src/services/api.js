@@ -24,8 +24,6 @@ if (typeof window !== 'undefined') {
 
 /**
  * Valida la respuesta de un nivel específico en el backend.
- * @param {number} level - 1, 2 o 3
- * @param {string|number} answer - Respuesta propuesta por el jugador
  */
 export async function verifyPuzzle(level, answer) {
   try {
@@ -50,16 +48,19 @@ export async function verifyPuzzle(level, answer) {
 }
 
 /**
- * Registra el tiempo final y nombre del jugador en el leaderboard de Supabase.
- * @param {string} playerName - Nombre o apodo del jugador
- * @param {number} completionTimeSeconds - Segundos totales empleados
+ * Registra el tiempo, nombre, historial de respuestas y vidas en Supabase.
  */
-export async function submitScore(playerName, completionTimeSeconds) {
+export async function submitScore(playerName, completionTimeSeconds, answers = [], livesRemaining = 3) {
   try {
     const res = await fetch(`${API_URL}/api/score`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ playerName, completionTimeSeconds }),
+      body: JSON.stringify({
+        playerName,
+        completionTimeSeconds,
+        answers,
+        livesRemaining,
+      }),
     });
 
     const data = await res.json();
@@ -98,24 +99,67 @@ export async function getLeaderboard() {
 }
 
 /**
- * Limpia y purga registros vacíos o de prueba en el backend
+ * ==============================================================
+ * FUNCIONES DEL PANEL DE ADMINISTRADOR
+ * ==============================================================
  */
-export async function cleanupLeaderboard() {
+
+/**
+ * Inicia sesión de Administrador
+ */
+export async function adminLogin(username, password) {
   try {
-    const res = await fetch(`${API_URL}/api/leaderboard/cleanup`, {
+    const res = await fetch(`${API_URL}/api/admin/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
     });
-    const data = await res.json();
-    return {
-      status: res.status,
-      ...data,
-    };
+    return await res.json();
   } catch (error) {
-    console.error('Error al limpiar registros:', error);
-    return {
-      success: false,
-      message: 'No se pudo limpiar la base de datos.',
-    };
+    return { success: false, message: 'No se pudo conectar con el servidor de autenticación.' };
+  }
+}
+
+/**
+ * Recupera todos los jugadores con su desglose de respuestas
+ */
+export async function getAdminPlayers(token) {
+  try {
+    const res = await fetch(`${API_URL}/api/admin/players`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await res.json();
+  } catch (error) {
+    return { success: false, message: 'Error al recuperar jugadores.' };
+  }
+}
+
+/**
+ * Elimina a un jugador individual por ID
+ */
+export async function deleteAdminPlayer(id, token) {
+  try {
+    const res = await fetch(`${API_URL}/api/admin/players/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await res.json();
+  } catch (error) {
+    return { success: false, message: 'Error al eliminar jugador.' };
+  }
+}
+
+/**
+ * Vacía y limpia todos los registros del juego
+ */
+export async function clearAdminLeaderboard(token) {
+  try {
+    const res = await fetch(`${API_URL}/api/admin/clear-all`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await res.json();
+  } catch (error) {
+    return { success: false, message: 'Error al vaciar los registros.' };
   }
 }

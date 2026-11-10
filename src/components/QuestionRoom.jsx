@@ -38,7 +38,7 @@ export default function QuestionRoom({
         setRoomState('locked');
         setSelectedOption(null);
         setFeedback(null);
-        onCorrectAnswer();
+        onCorrectAnswer(answerKey);
       }, 2000);
     } else {
       soundFX.playErrorBuzzer();
@@ -51,7 +51,7 @@ export default function QuestionRoom({
         text: res.message || 'Respuesta incorrecta. El cerrojo se atranca y pierdes 1 vida.',
       });
 
-      onWrongAnswer();
+      onWrongAnswer(answerKey);
     }
   };
 

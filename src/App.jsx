@@ -4,6 +4,7 @@ import WelcomeScreen from './components/WelcomeScreen';
 import QuestionRoom from './components/QuestionRoom';
 import GameOverScreen from './components/GameOverScreen';
 import VictoryScreen from './components/VictoryScreen';
+import AdminPanel from './components/AdminPanel';
 import { QUESTIONS } from './data/questions';
 import { ShieldCheck, Check } from 'lucide-react';
 
@@ -14,6 +15,8 @@ export default function App() {
   const [playerName, setPlayerName] = useState('');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [answersLog, setAnswersLog] = useState([]); // Historial de respuestas por cada bóveda
+  const [isAdminOpen, setIsAdminOpen] = useState(false); // Modal del panel de administrador
 
   // Manejador del cronómetro en vivo
   useEffect(() => {
@@ -34,12 +37,24 @@ export default function App() {
     setElapsedSeconds(0);
     setLives(3);
     setCurrentLevel(1);
+    setAnswersLog([]);
     setIsTimerRunning(true);
     setGameState('playing');
   };
 
   // Manejar respuesta acertada
-  const handleCorrectAnswer = () => {
+  const handleCorrectAnswer = (answerKey) => {
+    const currentQ = QUESTIONS[currentLevel - 1];
+    setAnswersLog((prev) => [
+      ...prev,
+      {
+        questionId: currentLevel,
+        question: currentQ ? currentQ.question : `Bóveda ${currentLevel}`,
+        answer: answerKey,
+        isCorrect: true,
+      },
+    ]);
+
     if (currentLevel < QUESTIONS.length) {
       setCurrentLevel((prev) => prev + 1);
     } else {
@@ -50,7 +65,18 @@ export default function App() {
   };
 
   // Manejar equivocación (pierde 1 vida)
-  const handleWrongAnswer = () => {
+  const handleWrongAnswer = (answerKey) => {
+    const currentQ = QUESTIONS[currentLevel - 1];
+    setAnswersLog((prev) => [
+      ...prev,
+      {
+        questionId: currentLevel,
+        question: currentQ ? currentQ.question : `Bóveda ${currentLevel}`,
+        answer: answerKey,
+        isCorrect: false,
+      },
+    ]);
+
     setLives((prevLives) => {
       const nextLives = prevLives - 1;
       if (nextLives <= 0) {
@@ -65,6 +91,7 @@ export default function App() {
   const handleRetryAfterGameOver = () => {
     setLives(3);
     setCurrentLevel(1);
+    setAnswersLog([]);
     setElapsedSeconds(0);
     setIsTimerRunning(true);
     setGameState('playing');
@@ -76,6 +103,7 @@ export default function App() {
     setElapsedSeconds(0);
     setLives(3);
     setCurrentLevel(1);
+    setAnswersLog([]);
     setGameState('welcome');
   };
 
@@ -91,6 +119,7 @@ export default function App() {
         isTimerRunning={isTimerRunning}
         lives={lives}
         onResetGame={handleResetGame}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       {/* Barra de Progreso de las 7 Bóvedas (Visible durante el juego) */}
@@ -148,7 +177,10 @@ export default function App() {
       {/* Contenido Dinámico según el estado del juego */}
       <main className="flex-1 flex flex-col justify-center">
         {gameState === 'welcome' && (
-          <WelcomeScreen onStartGame={handleStartGame} />
+          <WelcomeScreen
+            onStartGame={handleStartGame}
+            onOpenAdmin={() => setIsAdminOpen(true)}
+          />
         )}
 
         {gameState === 'playing' && currentQuestionData && (
@@ -173,10 +205,19 @@ export default function App() {
           <VictoryScreen
             playerName={playerName}
             totalSeconds={elapsedSeconds}
+            answersLog={answersLog}
+            livesRemaining={lives}
             onPlayAgain={handleResetGame}
+            onOpenAdmin={() => setIsAdminOpen(true)}
           />
         )}
       </main>
+
+      {/* Modal de Control de Administrador */}
+      <AdminPanel
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+      />
 
       {/* Footer Informativo */}
       <footer className="w-full border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-500">

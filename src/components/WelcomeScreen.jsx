@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Play, TrendingUp, Users, Target, Sparkles, Trophy } from 'lucide-react';
+import { Play, TrendingUp, Users, Target, Sparkles, Trophy, ShieldCheck, Heart, Lock } from 'lucide-react';
 import LeaderboardTable from './LeaderboardTable';
 
-export default function WelcomeScreen({ onStartGame }) {
+export default function WelcomeScreen({ onStartGame, onOpenAdmin }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
 
@@ -29,21 +29,27 @@ export default function WelcomeScreen({ onStartGame }) {
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs font-semibold uppercase tracking-wider mb-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs font-semibold uppercase tracking-wider mb-6">
             <Sparkles className="w-3.5 h-3.5 text-rose-400" />
-            Objetivo de Desarrollo Sostenible 8
+            Proyecto "Jóvenes Creadores" • ODS 8
           </div>
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-2xl mb-4">
-            Bóveda Global: <br />
+            Misión Bóveda: <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-emerald-400">
-              Misión Trabajo Decente
+              Del Negocio Informal al Trabajo Digno
             </span>
           </h1>
 
-          <p className="text-slate-300 text-sm md:text-base max-w-2xl leading-relaxed mb-8">
-            El Sistema Financiero y Laboral Internacional se encuentra bajo un bloqueo crítico. Para desbloquear el acceso y reactivar las economías globales, debes resolver <strong>3 cerrojos criptográficos</strong> basados en los principios del <strong>ODS 8</strong>: crecimiento económico sostenible, formalidad laboral e inclusión social.
+          <p className="text-slate-300 text-sm md:text-base max-w-2xl leading-relaxed mb-4">
+            El Sistema de Formalización Laboral se encuentra bajo un bloqueo de seguridad. Debes superar <strong>7 Bóvedas de Seguridad</strong> para liberar los protocolos de empleo decente y crecimiento sostenible.
           </p>
+
+          {/* Advertencia de las 3 Vidas */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-rose-500/40 text-xs font-mono text-rose-300 mb-8 shadow-inner">
+            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-pulse" />
+            <span>Regla de Supervivencia: Tienes exactamente <strong>3 VIDAS</strong>. A la 3ª equivocación, el sistema se bloquea.</span>
+          </div>
 
           {/* Formulario de Registro */}
           <form
@@ -96,27 +102,29 @@ export default function WelcomeScreen({ onStartGame }) {
               Salón de la Fama: Agentes que ya Escaparon
             </h2>
           </div>
-          <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
-            ● En Vivo con Supabase
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+              ● En Vivo con Supabase
+            </span>
+          </div>
         </div>
         <p className="text-xs text-slate-400 mb-4 px-1">
-          Tiempos oficiales registrados en la base de datos. ¡Intenta superar a los mejores del ranking!
+          Tiempos oficiales registrados en la base de datos. Solo el Administrador puede depurar o gestionar los registros.
         </p>
-        <LeaderboardTable />
+        <LeaderboardTable onOpenAdmin={onOpenAdmin} />
       </div>
 
-      {/* Grid de 3 Pilares del Escape Room */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Grid de 3 Fases del Escape Room (Actualizado a las 7 Bóvedas) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur hover:border-slate-700 transition">
           <div className="w-12 h-12 rounded-xl bg-rose-950/80 border border-rose-500/30 flex items-center justify-center mb-4 text-rose-400">
             <Target className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-white mb-2">
-            1. Cerrojo Numérico
+            Bóvedas 1 a 3: Fundamentos ODS 8
           </h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Descifra el algoritmo de crecimiento sostenible combinando la tasa meta del PIB (ODS 8.1) y los ejes de acción laboral.
+            Descifra los pilares clave del trabajo decente, los derechos de los trabajadores y la igualdad de oportunidades mediante terminales de opción múltiple.
           </p>
         </div>
 
@@ -125,10 +133,10 @@ export default function WelcomeScreen({ onStartGame }) {
             <TrendingUp className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-white mb-2">
-            2. Cerrojo de Palabra
+            Bóvedas 4 y 5: Verdadero o Falso
           </h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Identifica el motor principal del tejido productivo que genera más del 70% de los empleos formales en el mundo.
+            Evalúa la Meta 8.5 de la Agenda 2030 y el impacto del desempleo juvenil a través de dos botones tácticos. ¡Un solo error te costará una vida!
           </p>
         </div>
 
@@ -137,12 +145,23 @@ export default function WelcomeScreen({ onStartGame }) {
             <Users className="w-6 h-6" />
           </div>
           <h3 className="text-base font-bold text-white mb-2">
-            3. Cerrojo de Suma
+            Bóvedas 6 y 7: Jóvenes Creadores
           </h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Conecta las metas interdependientes de la Agenda 2030 (Educación, Género y Pobreza) para abrir la cámara acorazada final.
+            Identifica el proyecto del grupo y la realidad de informalidad laboral según estadísticas oficiales de la OIT para abrir la cámara de victoria final.
           </p>
         </div>
+      </div>
+
+      {/* Botón de Acceso al Panel de Administrador */}
+      <div className="text-center pt-2">
+        <button
+          onClick={onOpenAdmin}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 text-slate-400 hover:text-amber-400 text-xs font-mono transition shadow-lg"
+        >
+          <Lock className="w-3.5 h-3.5" />
+          <span>Acceso Exclusivo • Panel de Administrador</span>
+        </button>
       </div>
     </div>
   );
