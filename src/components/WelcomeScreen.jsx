@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Play, TrendingUp, Users, Target, Sparkles, Award } from 'lucide-react';
+import { Play, TrendingUp, Users, Target, Sparkles, Trophy } from 'lucide-react';
+import LeaderboardTable from './LeaderboardTable';
 
 export default function WelcomeScreen({ onStartGame }) {
   const [name, setName] = useState('');
@@ -84,6 +85,25 @@ export default function WelcomeScreen({ onStartGame }) {
             </p>
           </form>
         </div>
+      </div>
+
+      {/* SECCIÓN LEADERBOARD: Agentes que ya respondieron y superaron el Escape Room */}
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-amber-400" />
+            <h2 className="text-base md:text-lg font-bold text-white tracking-wide">
+              Salón de la Fama: Agentes que ya Escaparon
+            </h2>
+          </div>
+          <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+            ● En Vivo con Supabase
+          </span>
+        </div>
+        <p className="text-xs text-slate-400 mb-4 px-1">
+          Tiempos oficiales registrados en la base de datos. ¡Intenta superar a los mejores del ranking!
+        </p>
+        <LeaderboardTable />
       </div>
 
       {/* Grid de 3 Pilares del Escape Room */}
