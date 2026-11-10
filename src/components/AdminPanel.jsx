@@ -6,7 +6,7 @@ import { QUESTIONS } from '../data/questions';
 
 export default function AdminPanel({ isOpen, onClose, onLeaderboardChanged }) {
   const [token, setToken] = useState(() => localStorage.getItem('admin_token') || null);
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(null);
   const [loginLoading, setLoginLoading] = useState(false);
@@ -123,8 +123,10 @@ export default function AdminPanel({ isOpen, onClose, onLeaderboardChanged }) {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Ingresa tu usuario..."
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"
                   required
+                  autoFocus
                 />
               </div>
 
@@ -139,7 +141,6 @@ export default function AdminPanel({ isOpen, onClose, onLeaderboardChanged }) {
                   placeholder="••••••••••••"
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"
                   required
-                  autoFocus
                 />
               </div>
 
@@ -157,11 +158,6 @@ export default function AdminPanel({ isOpen, onClose, onLeaderboardChanged }) {
               >
                 {loginLoading ? 'Verificando...' : 'Iniciar Sesión'}
               </button>
-
-              <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400 font-mono">
-                <span className="text-amber-400 font-bold block mb-0.5">Credenciales maestras:</span>
-                Usuario: <code className="text-white">admin</code> | Contraseña: <code className="text-white">adminODS8*2030</code>
-              </div>
             </form>
           </div>
         ) : (
