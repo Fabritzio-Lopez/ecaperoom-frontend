@@ -23,9 +23,90 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * Valida la respuesta de un nivel específico en el backend.
+ * Soluciones oficiales de las 7 Bóvedas del Escape Room ODS 8
+ */
+const OFFICIAL_SOLUTIONS = {
+  1: {
+    correct: ['B'],
+    message: '¡Correcto! El ODS 8 busca promover el crecimiento económico inclusivo y sostenible, el empleo pleno y el trabajo decente.',
+  },
+  2: {
+    correct: ['C'],
+    message: '¡Correcto! Trabajo decente es un trabajo productivo con derechos, ingresos justos y condiciones adecuadas.',
+  },
+  3: {
+    correct: ['B'],
+    message: '¡Correcto! Igualdad de oportunidades y derechos laborales forman parte esencial del trabajo decente.',
+  },
+  4: {
+    correct: ['VERDADERO', 'V', 'TRUE'],
+    message: '¡Correcto! La meta 8.5 busca lograr empleo pleno y productivo y trabajo decente para todas las personas.',
+  },
+  5: {
+    correct: ['FALSO', 'F', 'FALSE'],
+    message: '¡Correcto! El desempleo juvenil sí tiene graves consecuencias para el desarrollo económico del país.',
+  },
+  6: {
+    correct: ['C'],
+    message: '¡Correcto! El nombre del proyecto es "Jóvenes Creadores: Del Negocio Informal al Trabajo Digno".',
+  },
+  7: {
+    correct: ['D', '82.2', '82,2'],
+    message: '¡Bóveda Final Desbloqueada! Según estadísticas oficiales de la OIT, la tasa en Bolivia es del 82.2%.',
+  },
+};
+
+/**
+ * Valida la respuesta de un nivel específico.
+ * Utiliza validación instantánea y resiliente para evitar fallos si el backend en Render
+ * tarda en sincronizar o se encuentra en reposo.
  */
 export async function verifyPuzzle(level, answer) {
+  const levelNum = parseInt(level, 10);
+  const solution = OFFICIAL_SOLUTIONS[levelNum];
+
+  const cleanAns = (answer || '')
+    .toString()
+    .trim()
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  if (solution) {
+    const isCorrect = solution.correct.some((validOption) => {
+      const cleanOpt = validOption
+        .toString()
+        .trim()
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+      return cleanOpt === cleanAns;
+    });
+
+    if (isCorrect) {
+      // Notifica de forma no bloqueante al backend si está disponible
+      fetch(`${API_URL}/api/verify-puzzle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level: levelNum, answer }),
+      }).catch(() => {});
+
+      return {
+        success: true,
+        level: levelNum,
+        nextLevel: levelNum === 7 ? 'victory' : levelNum + 1,
+        message: solution.message,
+      };
+    } else {
+      return {
+        success: false,
+        level: levelNum,
+        message: 'Respuesta incorrecta. El cerrojo se atranca y pierdes 1 vida.',
+      };
+    }
+  }
+
+  // Fallback de red si el nivel no estuviera mapeado localmente
   try {
     const res = await fetch(`${API_URL}/api/verify-puzzle`, {
       method: 'POST',
@@ -42,7 +123,7 @@ export async function verifyPuzzle(level, answer) {
     console.error('Error al conectar con el servidor:', error);
     return {
       success: false,
-      message: `No se pudo conectar con el servidor backend (${API_URL}). Verifica que esté en ejecución.`,
+      message: `No se pudo conectar con el servidor backend (${API_URL}).`,
     };
   }
 }
