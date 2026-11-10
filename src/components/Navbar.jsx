@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Timer from './Timer';
-import { ShieldCheck, User, RotateCcw } from 'lucide-react';
+import { User, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { soundFX } from '../utils/audio';
 
 export default function Navbar({
   playerName,
@@ -9,6 +10,16 @@ export default function Navbar({
   isTimerRunning,
   onResetGame,
 }) {
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  const handleToggleSound = () => {
+    const isNowOn = soundFX.toggleSound();
+    setSoundEnabled(isNowOn);
+    if (isNowOn) {
+      soundFX.playDialClick();
+    }
+  };
+
   return (
     <header className="w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
@@ -32,8 +43,21 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Indicadores de Progreso y Usuario */}
-        <div className="flex items-center space-x-3">
+        {/* Indicadores de Progreso, Sonido y Usuario */}
+        <div className="flex items-center space-x-2 md:space-x-3">
+          {/* Botón de Sonido Efectos Escape Room */}
+          <button
+            onClick={handleToggleSound}
+            title={soundEnabled ? 'Silenciar Efectos de Sonido' : 'Activar Sonidos de Escape Room'}
+            className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-amber-400 transition"
+          >
+            {soundEnabled ? (
+              <Volume2 className="w-4 h-4 text-emerald-400" />
+            ) : (
+              <VolumeX className="w-4 h-4 text-slate-500" />
+            )}
+          </button>
+
           {playerName && (
             <div className="hidden md:flex items-center space-x-2 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-full text-xs text-slate-300">
               <User className="w-3.5 h-3.5 text-cyan-400" />
@@ -52,7 +76,7 @@ export default function Navbar({
             <button
               onClick={onResetGame}
               title="Reiniciar partida"
-              className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-rose-400 transition"
+              className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-rose-400 transition"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
