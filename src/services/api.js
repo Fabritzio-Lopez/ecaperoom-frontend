@@ -96,3 +96,26 @@ export async function getLeaderboard() {
     };
   }
 }
+
+/**
+ * Limpia y purga registros vacíos o de prueba en el backend
+ */
+export async function cleanupLeaderboard() {
+  try {
+    const res = await fetch(`${API_URL}/api/leaderboard/cleanup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    return {
+      status: res.status,
+      ...data,
+    };
+  } catch (error) {
+    console.error('Error al limpiar registros:', error);
+    return {
+      success: false,
+      message: 'No se pudo limpiar la base de datos.',
+    };
+  }
+}
